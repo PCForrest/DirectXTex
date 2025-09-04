@@ -1,10 +1,12 @@
 project "DirectXTex"
 	kind "StaticLib"
 
+	include "premake5.vstudio.vc2010.project.override.lua"
+
 	language "C++"
 	cppdialect "C++17"
 	staticruntime "Off"
-	location "%{wks.location}/Libs/Vendor/%{prj.name}"
+	location "%{wks.location}/Libs/Vendor/%{prj.name}/%{prj.name}"
 
 	targetdir (bin_dir .. "/Libs/Vendor/%{prj.name}")
 	objdir (int_dir .. "/Libs/Vendor/%{prj.name}")
@@ -22,25 +24,26 @@ project "DirectXTex"
 
 	removefiles
 	{
-		"%{prj.location}/premake5.lua",
-		"%{prj.location}/d3dx12.h",
-		"%{prj.location}/DirectXTexD3D12.cpp",
+		--"%{prj.location}/premake5.lua",
+		--"%{prj.location}/d3dx12.h",
+		--"%{prj.location}/DirectXTexD3D12.cpp",
 	}
 
 	includedirs
 	{
-		"%{prj.location}",
-		"%{prj.location}/Shaders/Compiled",
+		"$(ProjectDir)",
+		"../Common",
+		"$(ProjectDir)Shaders/Compiled",
 	}
 
 	dependson
 	{
-		-- Nil
+		-- nil
 	}
 
 	links
 	{
-		-- Nil
+		-- nil
 	}
 
 	defines
@@ -50,7 +53,7 @@ project "DirectXTex"
 		"WIN32",
 		"_LIB",
 		"_WIN7_PLATFORM_UPDATE",
-		"_WIN32_WINNT=0x0601",
+		"_WIN32_WINNT=0x0A00",
 		"_CRT_STDIO_ARBITRARY_WIDE_SPECIFIERS",
 	}
 

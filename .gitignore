@@ -40,3 +40,5 @@ x64
 /out
 /CMakeUserPresets.json
 /build/vcpkg_installed
+/DirectXTex/DirectXTex.vcxproj
+/DirectXTex/DirectXTex.vcxproj.filters
