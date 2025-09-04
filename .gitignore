@@ -42,3 +42,4 @@ x64
 /build/vcpkg_installed
 /DirectXTex/DirectXTex.vcxproj
 /DirectXTex/DirectXTex.vcxproj.filters
+/DirectXTex/DirectXTex.vcxproj.user
