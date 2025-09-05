@@ -30,9 +30,6 @@ project "DirectXTex"
 	removefiles
 	{
 		"premake5.lua",
---		"Shaders/BC6HEncode.hlsl",
---		"Shaders/BC7Encode.hlsl",
---		"Shaders/CompileShaders.cmd",
 	}
 
 	vpaths
@@ -103,7 +100,6 @@ project "DirectXTex"
 		"UNICODE",
 		"WIN32",
 		"_LIB",
-		"_WIN7_PLATFORM_UPDATE",
 		"_WIN32_WINNT=0x0A00",
 		"_CRT_STDIO_ARBITRARY_WIDE_SPECIFIERS",
 	}
