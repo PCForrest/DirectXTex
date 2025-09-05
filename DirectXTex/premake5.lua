@@ -30,6 +30,9 @@ project "DirectXTex"
 	removefiles
 	{
 		"premake5.lua",
+--		"Shaders/BC6HEncode.hlsl",
+--		"Shaders/BC7Encode.hlsl",
+--		"Shaders/CompileShaders.cmd",
 	}
 
 	vpaths
@@ -107,6 +110,9 @@ project "DirectXTex"
 
 	filter "system:windows"
 		systemversion "latest"
+
+	filter "files:**.hlsl"
+		buildaction "None"
 
 	filter "configurations:Debug"
 		defines { "_DEBUG" }
