@@ -189,6 +189,7 @@ namespace
     {
         FORMAT_DXT5_NM = 1,
         FORMAT_DXT5_RXGB,
+        FORMAT_24BPP_LEGACY,
     };
 
     static_assert(OPT_FLAGS_MAX <= 64, "dwOptions is a unsigned int bitfield");
@@ -450,6 +451,7 @@ namespace
         { L"BC3n", FORMAT_DXT5_NM },
         { L"DXT5nm", FORMAT_DXT5_NM },
         { L"RXGB", FORMAT_DXT5_RXGB },
+        { L"RGB24", FORMAT_24BPP_LEGACY },
 
         { nullptr, 0 }
     };
@@ -1271,6 +1273,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
     bool keepRecursiveDirs = false;
     bool dxt5nm = false;
     bool dxt5rxgb = false;
+    bool use24bpp = false;
     uint32_t swizzleElements[4] = { 0, 1, 2, 3 };
     uint32_t zeroElements[4] = {};
     uint32_t oneElements[4] = {};
@@ -1486,6 +1489,11 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
                         case FORMAT_DXT5_RXGB:
                             format = DXGI_FORMAT_BC3_UNORM;
                             dxt5rxgb = true;
+                            break;
+
+                        case FORMAT_24BPP_LEGACY:
+                            format = DXGI_FORMAT_B8G8R8X8_UNORM;
+                            use24bpp = true;
                             break;
 
                         default:
@@ -2157,7 +2165,13 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
     #ifdef USE_LIBJPEG
         else if (_wcsicmp(ext.c_str(), L".jpg") == 0 || _wcsicmp(ext.c_str(), L".jpeg") == 0)
         {
-            hr = LoadFromJPEGFile(curpath.c_str(), &info, *image);
+            JPEG_FLAGS jpegFlags = JPEG_FLAGS_NONE;
+            if (dwOptions & (UINT64_C(1) << OPT_IGNORE_SRGB_METADATA))
+            {
+                jpegFlags |= JPEG_FLAGS_DEFAULT_LINEAR;
+            }
+
+            hr = LoadFromJPEGFile(curpath.c_str(), jpegFlags, &info, *image);
             if (FAILED(hr))
             {
                 wprintf(L" FAILED (%08X%ls)\n", static_cast<unsigned int>(hr), GetErrorDesc(hr));
@@ -2169,7 +2183,13 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
     #ifdef USE_LIBPNG
         else if (_wcsicmp(ext.c_str(), L".png") == 0)
         {
-            hr = LoadFromPNGFile(curpath.c_str(), &info, *image);
+            PNG_FLAGS pngFlags = (IsBGR(format)) ? PNG_FLAGS_BGR : PNG_FLAGS_NONE;
+            if (dwOptions & (UINT64_C(1) << OPT_IGNORE_SRGB_METADATA))
+            {
+                pngFlags |= PNG_FLAGS_IGNORE_SRGB;
+            }
+
+            hr = LoadFromPNGFile(curpath.c_str(), pngFlags, &info, *image);
             if (FAILED(hr))
             {
                 wprintf(L" FAILED (%08X%ls)\n", static_cast<unsigned int>(hr), GetErrorDesc(hr));
@@ -3763,6 +3783,10 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
                         {
                             ddsFlags |= DDS_FLAGS_FORCE_DXT5_RXGB;
                         }
+                        else if (use24bpp)
+                        {
+                            ddsFlags |= DDS_FLAGS_FORCE_24BPP_RGB;
+                        }
 
                         ddsFlags |= DDS_FLAGS_FORCE_DX9_LEGACY;
                     }
@@ -3794,12 +3818,12 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
             #endif
             #ifdef USE_LIBJPEG
             case CODEC_JPEG:
-                hr = SaveToJPEGFile(img[0], destName.c_str());
+                hr = SaveToJPEGFile(img[0], JPEG_FLAGS_NONE, destName.c_str());
                 break;
             #endif
             #ifdef USE_LIBPNG
             case CODEC_PNG:
-                hr = SaveToPNGFile(img[0], destName.c_str());
+                hr = SaveToPNGFile(img[0], PNG_FLAGS_NONE, destName.c_str());
                 break;
             #endif
 

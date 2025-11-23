@@ -618,11 +618,11 @@ namespace
         #endif
         #ifdef USE_LIBJPEG
         case CODEC_JPEG:
-            return SaveToJPEGFile(img, szOutputFile);
+            return SaveToJPEGFile(img, JPEG_FLAGS_NONE, szOutputFile);
         #endif
         #ifdef USE_LIBPNG
         case CODEC_PNG:
-            return SaveToPNGFile(img, szOutputFile);
+            return SaveToPNGFile(img, PNG_FLAGS_NONE, szOutputFile);
         #endif
 
         default:
@@ -1423,7 +1423,7 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
             #ifdef USE_LIBJPEG
                 else if (_wcsicmp(ext.c_str(), L".jpg") == 0 || _wcsicmp(ext.c_str(), L".jpeg") == 0)
                 {
-                    hr = LoadFromJPEGFile(curpath.c_str(), &info, *image);
+                    hr = LoadFromJPEGFile(curpath.c_str(), JPEG_FLAGS_NONE, &info, *image);
                     if (FAILED(hr))
                     {
                         wprintf(L" FAILED (%08X%ls)\n", static_cast<unsigned int>(hr), GetErrorDesc(hr));
@@ -1434,7 +1434,9 @@ int __cdecl wmain(_In_ int argc, _In_z_count_(argc) wchar_t* argv[])
             #ifdef USE_LIBPNG
                 else if (_wcsicmp(ext.c_str(), L".png") == 0)
                 {
-                    hr = LoadFromPNGFile(curpath.c_str(), &info, *image);
+                    PNG_FLAGS pngFlags = (IsBGR(format)) ? PNG_FLAGS_BGR : PNG_FLAGS_NONE;
+
+                    hr = LoadFromPNGFile(curpath.c_str(), pngFlags, &info, *image);
                     if (FAILED(hr))
                     {
                         wprintf(L" FAILED (%08X%ls)\n", static_cast<unsigned int>(hr), GetErrorDesc(hr));
