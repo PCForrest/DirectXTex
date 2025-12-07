@@ -1,4 +1,4 @@
-require('vstudio')
+﻿require('vstudio')
 
 local p = premake
 local m = p.vstudio.vc2010
@@ -13,8 +13,7 @@ project "DirectXTex"
 	pchheader "DirectXTexP.h"
 	pchsource "DirectXTexUtil.cpp"
 
-	files
-	{
+	files {
 		"premake5.lua",
 		"*.h",
 		"*.inl",
@@ -25,13 +24,11 @@ project "DirectXTex"
 		"Shaders/CompileShaders.cmd",
 	}
 
-	removefiles
-	{
+	removefiles {
 		"premake5.lua"
 	}
 
-	vpaths
-	{
+	vpaths {
 		["Header Files"] =
 		{
 			"DirectXTex.h",
@@ -76,24 +73,20 @@ project "DirectXTex"
 		},
 	}
 
-	includedirs
-	{
+	includedirs {
 		"../Common",
 		"Shaders/Compiled",
 	}
 
-	dependson
-	{
+	dependson {
 		-- nil
 	}
 
-	links
-	{
+	links {
 		-- nil
 	}
 
-	defines
-	{
+	defines {
 		"_UNICODE",
 		"UNICODE",
 		"WIN32",
