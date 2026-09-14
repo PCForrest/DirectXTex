@@ -3,7 +3,9 @@
 local p = premake
 local m = p.vstudio.vc2010
 
-project "DirectXTex"
+local project_name = "DirectXTex"
+
+project (project_name)
 	kind "StaticLib"
 	language "C++"
 
@@ -15,6 +17,8 @@ project "DirectXTex"
 
 	files {
 		"premake5.lua",
+		"cpp.hint",
+		"local.hint",
 		"*.h",
 		"*.inl",
 		"*.cpp",
@@ -24,8 +28,10 @@ project "DirectXTex"
 		"Shaders/CompileShaders.cmd",
 	}
 
-	removefiles {
-		"premake5.lua"
+	removefiles	{
+		"premake5.lua",
+		"cpp.hint",
+		"local.hint",
 	}
 
 	vpaths {
