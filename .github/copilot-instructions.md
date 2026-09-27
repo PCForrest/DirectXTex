@@ -19,19 +19,19 @@ These instructions define how GitHub Copilot should assist with this project. Th
 
 ## General Guidelines
 
-- **Code Style**: The project uses an .editorconfig file to enforce coding standards. Follow the rules defined in `.editorconfig` for indentation, line endings, and other formatting. Additional information can be found on the wiki at [Implementation](https://github.com/microsoft/DirectXTK/wiki/Implementation). The library's public API requires C++11, and the project builds with C++17 (`CMAKE_CXX_STANDARD 17`). The command-line tools also use C++17, including `<filesystem>` for long file path support. This code is designed to build with Visual Studio 2022, Visual Studio 2026, clang for Windows v12 or later, or MinGW 12.2.
+- **Code Style**: The project uses an .editorconfig file to enforce coding standards. Follow the rules defined in `.editorconfig` for indentation, line endings, and other formatting. Additional information can be found on the wiki at [Implementation](https://github.com/microsoft/DirectXTK/wiki/Implementation). The library's public API requires C++11, and the project builds with C++17 (`CMAKE_CXX_STANDARD 17`). The command-line tools also use C++17, including `<filesystem>` for long file path support. This code is designed to build with Visual Studio 2022, Visual Studio 2026, clang for Windows v12 or later, MinGW, and GCC on Linux.
 > Notable `.editorconfig` rules: C/C++ and HLSL files use 4-space indentation, `crlf` line endings, and `latin1` charset — avoid non-ASCII characters in source files. HLSL files have separate indent/spacing rules defined in `.editorconfig`.
 - **Documentation**: The project provides documentation in the form of wiki pages available at [Documentation](https://github.com/microsoft/DirectXTex/wiki/).
 - **Error Handling**: Use C++ exceptions for error handling and uses RAII smart pointers to ensure resources are properly managed. For some functions that return HRESULT error codes, they are marked `noexcept`, use `std::nothrow` for memory allocation, and should not throw exceptions.
 - **Testing**: Unit tests for this project are implemented in this repository [Test Suite](https://github.com/walbourn/directxtextest/) and can be run using CTest per the instructions at [Test Documentation](https://github.com/walbourn/directxtextest/wiki). See [test copilot instructions](https://github.com/walbourn/directxtextest/blob/main/.github/copilot-instructions.md) for additional information on the tests.
 - **Security**: This project uses secure coding practices from the Microsoft Secure Coding Guidelines, and is subject to the `SECURITY.md` file in the root of the repository. Functions that read input from image files are subject to OneFuzz fuzz testing to ensure they are secure against malformed files.
 - **Dependencies**: The project uses CMake and VCPKG for managing dependencies, making optional use of DirectXMath and DirectX-Headers. The project can be built without these dependencies, relying on the Windows SDK for core functionality.
-- **Continuous Integration**: This project implements GitHub Actions for continuous integration, ensuring that all code changes are tested and validated before merging. This includes building the project for a number of configurations and toolsets, running a subset of unit tests, and static code analysis including GitHub super-linter, CodeQL, and MSVC Code Analysis.
+- **Continuous Integration**: This project implements GitHub Actions for continuous integration, ensuring that all code changes are tested and validated before merging. Platforms tested include Windows (MSVC, clang-cl, MinGW), Windows on ARM64, Xbox, UWP, WSL (Linux with GCC), and macOS (Apple Clang). This includes building the project for a number of configurations and toolsets, running a subset of unit tests, and static code analysis including GitHub super-linter, CodeQL, and MSVC Code Analysis.
 - **Code of Conduct**: The project adheres to the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). All contributors are expected to follow this code of conduct in all interactions related to the project.
 
 ## File Structure
 
-```txt
+```plaintext
 .azuredevops/     # Azure DevOps pipeline configuration and policy files.
 .github/          # GitHub Actions workflow files and linter configuration files.
 .nuget/           # NuGet package configuration files.
@@ -47,6 +47,7 @@ Texdiag/          # CLI tool for diagnosing and validating DDS texture files.
 DDSTextureLoader/ # Standalone version of the DDS texture loader for Direct3D 9/11/12.
 ScreenGrab/       # Standalone version of the screenshot capture utility for Direct3D 9/11/12.
 WICTextureLoader/ # Standalone version of the WIC texture loader for Direct3D 9/11/12.
+skills/           # Published CoPilot skills for use by developers.
 Tests/            # Tests are designed to be cloned from a separate repository at this location.
 wiki/             # Local clone of the GitHub wiki documentation repository.
 ```
@@ -226,9 +227,11 @@ When creating documentation:
 
 ## Cross-platform Support Notes
 
-- The code targets Win32 desktop applications for Windows 8.1 or later, Xbox One, Xbox Series X\|S, Universal Windows Platform (UWP) apps for Windows 10 and Windows 11, and Linux.
-- Portability and conformance of the code is validated by building with Visual C++, clang/LLVM for Windows, MinGW, and GCC for Linux compilers.
+- The code targets Win32 desktop applications for Windows 8.1 or later, Xbox One, Xbox Series X\|S, Universal Windows Platform (UWP) apps for Windows 10 and Windows 11, and Windows Subsystem for Linux (WSL).
+- macOS is not officially supported due to a lack of support for Direct3D, which is reflected in the fact that the *directx-headers* VCPKG port is not supported for macOS.
+- Portability and conformance of the code is validated by building with Visual C++ (MSVC), clang/LLVM for Windows (clang-cl), MinGW, GCC for Linux, and Apple Clang for macOS.
 - The project ships MSBuild projects for Visual Studio 2022 (`.sln` / `.vcxproj`) and Visual Studio 2026 (`.slnx` / `.vcxproj`). VS 2019 projects have been retired.
+- CMake is the primary build system and can be used on all supported platforms.
 
 ### Platform and Compiler `#ifdef` Guards
 
@@ -252,7 +255,7 @@ Use these established guards — do not invent new ones:
 
 > `_M_ARM`/ `__arm__` is legacy 32-bit ARM which is deprecated.
 
-Non-Windows builds (Linux/WSL) omit WIC entirely and use `<directx/dxgiformat.h>` and `<wsl/winadapter.h>` from the DirectX-Headers package instead of the Windows SDK.
+Non-Windows builds (Linux/WSL/macOS) omit WIC entirely and use `<directx/dxgiformat.h>` and `<wsl/winadapter.h>` from the DirectX-Headers package instead of the Windows SDK.
 
 ### Error Codes
 
@@ -272,7 +275,7 @@ The following symbols are not custom error codes, but aliases for `HRESULT_FROM_
 
 When reviewing code, focus on the following aspects:
 
-- Adherence to coding standards defined in `.editorconfig` and on the [wiki](https://github.com/microsoft/DirectXTK/wiki/Implementation).
+- Adherence to coding standards defined in `.editorconfig` and on the [wiki](https://github.com/microsoft/DirectXTex/wiki/Implementation).
 - Make coding recommendations based on the *C++ Core Guidelines*.
 - Proper use of RAII and smart pointers.
 - Correct error handling practices and C++ Exception safety.
@@ -296,3 +299,53 @@ When reviewing documentation, do the following:
 - Review the public interface defined in `DirectXTex.h`.
 - Read the documentation on the wiki located in [this git repository](https://github.com/microsoft/DirectXTex.wiki.git).
 - Report any specific gaps in the documentation compared to the public interface.
+
+## Code Change Rules
+
+- Make precise, surgical changes that **fully** address the request. Don't modify unrelated code, but ensure changes are complete and correct.
+- Don't fix pre-existing issues unrelated to your task. However, if you discover bugs directly caused by or tightly coupled to the code you're changing, fix those too.
+- Update documentation if it is directly related to the changes you are making.
+- Always validate that your changes don't break existing behavior.
+
+### Linting, Building, Testing
+
+- Only run linters, builds and tests that already exist. Do not add new linting, building or testing tools unless necessary for the task.
+- Use the smallest targeted test, build, or lint command that covers the changed behavior. When related targeted selectors use the same runner, include them in one invocation; escalate to full-suite or baseline runs only when targeted validation shows they are needed.
+- Documentation changes do not need to be linted, built or tested unless there are specific tests for documentation.
+
+### Using Ecosystem Tools
+
+- Prefer ecosystem tools (package managers, scaffolding, refactoring tools, linters) over manual changes.
+- Install packages only when changing dependencies or after a missing-dependency failure.
+
+### Code Commenting Style
+
+- Only comment code that needs a bit of clarification. Do not comment otherwise.
+
+## Release Process
+
+The release process is documented in the [release skill](.github/skills/release/SKILL.md). Invoke the `release` skill for step-by-step guidance when performing a release.
+
+The release workflow includes:
+- Preparing release branch with version updates in `CMakeLists.txt`, `README.md`, and `.nuspec` files
+- Tagging releases with verified GPG signatures
+- Creating GitHub releases with release notes from `CHANGELOG.md`
+- Publishing to MSCodeHub mirror, Azure DevOps signed binaries, and NuGet packages
+- Source archive signing with minisign
+- NuGet package validation and publishing to nuget.org
+
+## CoPilot Skills
+
+The project includes published CoPilot skills for developers:
+
+- **Release-Process**: Guide for performing the DirectXTex release process. Invoked when asked to help with releasing a new version, publishing packages, or updating ports. See [Release Process skill](.github/skills/release/SKILL.md) for details.
+- **directxtex-usage**: Provides usage guidance for the DirectXTex library. Located in the `skills/directxtex-usage/` directory.
+- **texture-assembler**: Provides guidance for using the texassemble command-line tool. Located in the `skills/texture-assembler/` directory.
+- **texture-converter**: Provides guidance for using the texconv command-line tool. Located in the `skills/texture-converter/` directory.
+
+To use these skills in the Copilot CLI:
+
+```bash
+/skills list
+/skills search directxtex
+```

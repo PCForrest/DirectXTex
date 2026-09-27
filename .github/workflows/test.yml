@@ -55,18 +55,7 @@ jobs:
         build_type: [x64-Debug, x64-Release]
         arch: [amd64]
         include:
-          - toolver: '14.29'
-            build_type: x86-Debug
-            arch: amd64_x86
-          - toolver: '14.29'
-            build_type: x86-Release
-            arch: amd64_x86
-          - toolver: '14'
-            build_type: x86-Debug
-            arch: amd64_x86
-          - toolver: '14'
-            build_type: x86-Release
-            arch: amd64_x86
+          # We skip x86-Debug and x86-Release for VS 2022 currently due to an ICE in the openjph library via vcpkg.
           - toolver: '14'
             build_type: arm64-Debug
             arch: amd64_arm64
@@ -81,10 +70,10 @@ jobs:
             arch: amd64_arm64
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Clone test repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: walbourn/directxtextest
           path: Tests
@@ -142,7 +131,7 @@ jobs:
         env:
           vcpkgRelease: '${{ vars.VCPKG_COMMIT_ID }}'
 
-      - uses: lukka/run-vcpkg@7d259227a1fb6471a0253dd5ab7419835228f7d7 # v11
+      - uses: lukka/run-vcpkg@5ad8bfa6267ef808f7d48cf4004c879bed752401 # v11
         with:
           runVcpkgInstall: true
           vcpkgJsonGlob: '**/build/vcpkg.json'
@@ -203,10 +192,10 @@ jobs:
             arch: amd64_arm64
 
     steps:
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Clone test repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: walbourn/directxtextest
           path: Tests
